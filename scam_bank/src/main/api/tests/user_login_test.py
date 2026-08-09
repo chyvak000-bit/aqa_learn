@@ -40,7 +40,7 @@ class TestUserLogin:
         create_user_response = requests.post(
             url="http://localhost:4111/api/admin/create",
             json={
-                "username": "Max1111",
+                "username": "user2",
                 "password": "Pas!sw0rd",
                 "role": "ROLE_USER"
             },
@@ -55,7 +55,7 @@ class TestUserLogin:
         login_user_response = requests.post(
             url="http://localhost:4111/api/auth/token/login",
             json={
-                "username": "Max1111",
+                "username": "user2",
                 "password": "Pas!sw0rd"
             },
             headers={
@@ -65,5 +65,5 @@ class TestUserLogin:
         )
 
         assert login_user_response.status_code == 200
-        assert login_user_response.json()["user"]["username"] == "Max1111"
+        assert login_user_response.json()["user"]["username"] == "user2"
         assert login_user_response.json()["user"]["role"] == "ROLE_USER"

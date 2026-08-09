@@ -1,6 +1,7 @@
 import requests
 import pytest
 
+
 @pytest.mark.api
 class TestCreateAccount:
     def test_login_user(self):
@@ -22,7 +23,7 @@ class TestCreateAccount:
         create_user_response = requests.post(
             url="http://localhost:4111/api/admin/create",
             json={
-                "username": "Max111",
+                "username": "user3",
                 "password": "Pas!sw0rd",
                 "role": "ROLE_USER"
             },
@@ -37,7 +38,7 @@ class TestCreateAccount:
         login_user_response = requests.post(
             url="http://localhost:4111/api/auth/token/login",
             json={
-                "username": "Max111",
+                "username": "user3",
                 "password": "Pas!sw0rd"
             },
             headers={
@@ -59,4 +60,3 @@ class TestCreateAccount:
 
         assert create_account_response.status_code == 201
         assert create_account_response.json().get("balance") == 0
-
