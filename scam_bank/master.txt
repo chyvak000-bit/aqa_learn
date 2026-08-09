@@ -3,3 +3,5 @@ middle +
 senior +
 
 full implementation
+
+allure merge
