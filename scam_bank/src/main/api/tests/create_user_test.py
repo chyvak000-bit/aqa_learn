@@ -19,15 +19,15 @@ class TestCreateUser:
     @pytest.mark.parametrize(
         "username,password",
         [
-            ("абв", "Pass!sw0rd"),
+            ("абв", "Pas!sw0rd"),
             ("ab", "Pas!sw0rd"),
             ("abv!", "Pas!sw0rd"),
-            ("Maxx111", "Pas!sw0rд"),
-            ("Maxx222", "Pas!sw0"),
-            ("Maxx333", "pas!sw0rd"),
-            ("Maxx444", "PAS!SW0RD"),
-            ("Maxx555", "PASSW0RD"),
-            ("Maxx666", "PAS!SWRRD")
+            ("Maxx1", "Pas!sw0rд"),
+            ("Maxx2", "Pas!sw0"),
+            ("Maxx3", "pas!sw0rd"),
+            ("Maxx4", "PAS!SW0RD"),
+            ("Maxx5", "PASSW0RD"),
+            ("Maxx6", "PAS!SWRRD")
         ]
     )
     def test_create_user_invalid(self, username, password, api_manager):
