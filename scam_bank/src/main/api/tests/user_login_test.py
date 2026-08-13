@@ -1,69 +1,40 @@
 import pytest
-import requests
+
+from main.api.models.create_user_request import CreateUserRequest
+from main.api.models.login_user_request import LoginUserRequest
+from main.api.requests.create_user_requester import CreateUserRequester
+from main.api.requests.login_user_requester import LoginUserRequester
+from main.api.specs.request_specs import RequestSpecs
+from main.api.specs.response_specs import ResponseSpecs
+
 
 @pytest.mark.api
 class TestUserLogin:
     def test_login_admin(self):
-        login_admin_response = requests.post(
-            url="http://localhost:4111/api/auth/token/login",
-            json={
-                "username": "admin",
-                "password": "123456"
-            },
-            headers={
-                "Content-Type": "application/json",
-                "accept": "application/json"
-            }
-        )
+        login_admin_request = LoginUserRequest(username="admin", password="123456")
 
-        assert login_admin_response.status_code == 200
-        assert login_admin_response.json()["user"]["username"] == "admin"
-        assert login_admin_response.json()["user"]["role"] == "ROLE_ADMIN"
+        login_admin_response = LoginUserRequester(
+            request_spec=RequestSpecs.unauth_headers(),
+            response_spec=ResponseSpecs.request_ok()
+        ).post(login_admin_request)
 
+        assert login_admin_request.username == login_admin_response.user.username
+        assert login_admin_response.user.role == "ROLE_ADMIN"
 
     def test_login_user(self):
-        login_admin_response = requests.post(
-            url="http://localhost:4111/api/auth/token/login",
-            json={
-                "username": "admin",
-                "password": "123456"
-            },
-            headers={
-                "Content-Type": "application/json",
-                "accept": "application/json"
-            }
-        )
+        create_user_request = CreateUserRequest(username="User2", password="Pas!sw0rd", role="ROLE_USER")
 
-        assert login_admin_response.status_code == 200
-        token = login_admin_response.json().get("token")
+        CreateUserRequester(
+            request_spec=RequestSpecs.auth_headers(username="admin", password="123456"),
+            response_spec=ResponseSpecs.request_ok()
+        ).post(create_user_request)
 
-        create_user_response = requests.post(
-            url="http://localhost:4111/api/admin/create",
-            json={
-                "username": "Max1111",
-                "password": "Pas!sw0rd",
-                "role": "ROLE_USER"
-            },
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {token}"
-            }
-        )
+        login_user_request = LoginUserRequest(username="User2", password="Pas!sw0rd")
 
-        assert create_user_response.status_code == 200
+        login_user_response = LoginUserRequester(
+            request_spec=RequestSpecs.unauth_headers(),
+            response_spec=ResponseSpecs.request_ok()
+        ).post(login_user_request)
 
-        login_user_response = requests.post(
-            url="http://localhost:4111/api/auth/token/login",
-            json={
-                "username": "Max1111",
-                "password": "Pas!sw0rd"
-            },
-            headers={
-                "Content-Type": "application/json",
-                "accept": "application/json"
-            }
-        )
-
-        assert login_user_response.status_code == 200
-        assert login_user_response.json()["user"]["username"] == "Max1111"
-        assert login_user_response.json()["user"]["role"] == "ROLE_USER"
+        assert login_user_request.username == login_user_response.user.username
+        assert login_user_response.user.role == "ROLE_USER"
