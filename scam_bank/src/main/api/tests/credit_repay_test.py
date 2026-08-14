@@ -39,13 +39,6 @@ class TestCreateAccount:
 
         account_id_1 = create_account_response.id
 
-        deposit_request = DepositRequest(accountId=account_id_1, amount=5000)
-
-        DepositRequester(
-            request_spec=RequestSpecs.auth_headers(username="User7", password="Pas!sw0rd"),
-            response_spec=ResponseSpecs.request_ok()
-        ).post(deposit_request)
-
         credit_request = CreditRequest(accountId=account_id_1, amount=12000, termMonths=12)
 
         credit_response = CreditRequester(
