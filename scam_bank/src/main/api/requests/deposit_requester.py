@@ -16,5 +16,3 @@ class DepositRequester(Requester):
         self.response_spec(response)
         return DepositResponse(**response.json())
 
-    @staticmethod
-    def

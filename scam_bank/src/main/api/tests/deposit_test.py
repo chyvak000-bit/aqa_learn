@@ -12,8 +12,8 @@ from main.api.specs.response_specs import ResponseSpecs
 
 
 @pytest.mark.api
-class TestCreateAccount:
-    def test_create_account(self):
+class TestDeposit:
+    def test_deposit(self):
         create_user_request = CreateUserRequest(username="User4", password="Pas!sw0rd", role="ROLE_USER")
 
         CreateUserRequester(
@@ -33,9 +33,13 @@ class TestCreateAccount:
             response_spec=ResponseSpecs.request_created()
         ).post()
 
-        new_deposit_request = DepositRequest(accountId="", amount="5000"),
+        account_id_1 = create_account_response.id
 
-        new_deposit_response = DepositRequester(
+        deposit_request = DepositRequest(accountId=account_id_1, amount=5000)
+
+        deposit_response = DepositRequester(
             request_spec=RequestSpecs.auth_headers(username="User4", password="Pas!sw0rd"),
-            response_spec=ResponseSpecs.
-        )
+            response_spec=ResponseSpecs.request_ok()
+        ).post(deposit_request)
+
+        assert deposit_response.balance == 5000
