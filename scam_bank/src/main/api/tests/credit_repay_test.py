@@ -3,13 +3,11 @@ import pytest
 from main.api.models.create_user_request import CreateUserRequest
 from main.api.models.credit_repay_request import CreditRepayRequest
 from main.api.models.credit_request import CreditRequest
-from main.api.models.deposit_request import DepositRequest
 from main.api.models.login_user_request import LoginUserRequest
 from main.api.requests.create_account_requester import CreateAccountRequester
 from main.api.requests.create_user_requester import CreateUserRequester
 from main.api.requests.credit_repay_requester import CreditRepayRequester
 from main.api.requests.credit_requester import CreditRequester
-from main.api.requests.deposit_requester import DepositRequester
 from main.api.requests.login_user_requester import LoginUserRequester
 from main.api.specs.request_specs import RequestSpecs
 from main.api.specs.response_specs import ResponseSpecs

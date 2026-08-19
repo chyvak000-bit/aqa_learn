@@ -1,6 +1,5 @@
 import requests
 
-from main.api.configs.config import Config
 from main.api.models.login_user_request import LoginUserRequest
 from main.api.models.login_user_response import LoginUserResponse
 
@@ -27,15 +26,9 @@ class RequestSpecs:
             auth_token = auth_response_data.token
             headers = RequestSpecs.base_headers()
             headers["Authorization"] = f"Bearer {auth_token}"
-            return {
-                "headers": headers,
-                "base_url": Config.fetch("backendUrl"),
-            }
+            return headers
         raise Exception("Authentication failed")
 
     @staticmethod
     def unauth_headers():
-        return {
-            "headers": RequestSpecs.base_headers(),
-            "base_url": Config.fetch("backendUrl"),
-        }
+        return RequestSpecs.base_headers()

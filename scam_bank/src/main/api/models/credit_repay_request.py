@@ -1,4 +1,4 @@
-from src.main.api.models.base_model import BaseModel
+from main.api.models.base_model import BaseModel
 
 
 class CreditRepayRequest(BaseModel):
