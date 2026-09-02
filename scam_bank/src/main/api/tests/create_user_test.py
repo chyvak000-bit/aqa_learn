@@ -9,51 +9,54 @@ from main.api.db.crud.user_crud import UserCrudDb
 
 @pytest.mark.api
 class TestCreateUser:
-    @pytest.mark.parametrize(
-        "create_user_request",
-        [RandomModelGenerator.generate(CreateUserRequest)]
-    )
+    @pytest.mark.parametrize("create_user_request", [RandomModelGenerator.generate(CreateUserRequest)])
     def test_create_user_valid(
             self, api_manager: ApiManager, create_user_request: CreateUserRequest, db_session: Session
     ):
-        create_user_response = api_manager.admin_steps.create_user(
-            create_user_request
-        )
+        create_user_response = api_manager.admin_steps.create_user(create_user_request)
 
-        assert create_user_request.username == create_user_response.username
-        assert create_user_request.role == create_user_response.role
+        # Проверяем ответ API
+        assert create_user_request.username == create_user_response.username, "Неверное имя пользователя в ответе API"
+        assert create_user_request.role == create_user_response.role, "Неверная роль пользователя в ответе API"
 
-        user_from_db = UserCrudDb.get_user_by_username(
-            db_session, create_user_request.username
-        )
+        user_from_db = UserCrudDb.get_user_by_username(db_session, create_user_request.username)
 
-        assert user_from_db is not None, "Созданного пользователя нет в базе данных"
-        assert user_from_db.username == create_user_request.username
+        # Проверяем сохранение пользователя в БД
+        assert user_from_db is not None, "Созданного пользователя нет в БД"
+        assert user_from_db.username == create_user_request.username, "Неверное имя пользователя в БД"
+        assert user_from_db.role == create_user_request.role, "Неверная роль пользователя в БД"
 
     @pytest.mark.parametrize(
         "username,password",
         [
-            ("абв", "Pass!sw0rd"),
-            ("ab", "Pas!sw0rd"),
-            ("abv!", "Pas!sw0rd"),
-            ("Maxx1", "Pas!sw0rд"),
-            ("Maxx2", "Pas!sw0"),
-            ("Maxx3", "pas!sw0rd"),
-            ("Maxx4", "PAS!SW0RD"),
-            ("Maxx5", "PASSW0RD"),
-            ("Maxx6", "PAS!SWRRD")
+            ("Максим", "Pass!sw0rd"),
+            ("Ма", "Pas!sw0rd"),
+            ("Maksimiliannnnnn", "Pas!sw0rd"),
+            ("Maksim!", "Pas!sw0rd"),
+            ("Maksim1", "Pas!sw0rд"),
+            ("Maksim2", "Pas!sw0"),
+            ("Maksim3", "pas!sw0rd"),
+            ("Maksim4", "PAS!SW0RD"),
+            ("Maksim5", "PASSW0RD"),
+            ("Maksim6", "PAS!SWRRD"),
+        ],
+        ids=[
+            "В имени пользователя использована кириллица",
+            "Имя пользователя содержит менее 3-х символов",
+            "Имя пользователя содержит более 15-ти символов",
+            "В имени пользователя использованы спецсимволы",
+            "В пароле пользователя использована кириллица ",
+            "Пароль пользователя содержит меньше 8-ми символов",
+            "Пароль пользователя не содержит заглавных букв",
+            "Пароль пользователя не содержит строчных букв",
+            "Пароль пользователя не содержит спецсимвол",
+            "Пароль пользователя не содержит цифры",
         ]
     )
-    def test_create_user_invalid(self, db_session: Session, username: str, password: str, api_manager: ApiManager):
-        create_user_request = CreateUserRequest(
-            username=username, password=password, role="ROLE_USER"
-        )
-        api_manager.admin_steps.create_invalid_user(
-            create_user_request
-        )
+    def test_create_user_invalid(self, username: str, password: str, api_manager: ApiManager, db_session: Session):
+        create_user_request = CreateUserRequest(username=username, password=password, role="ROLE_USER")
+        api_manager.admin_steps.create_invalid_user(create_user_request)
 
-        user_from_db = UserCrudDb.get_user_by_username(
-            db_session, create_user_request.username
-        )
+        user_from_db = UserCrudDb.get_user_by_username(db_session, create_user_request.username)
 
-        assert user_from_db is None, "Пользователь создан, ошибка"
+        assert user_from_db is None, "Был создан невалидный пользователь в БД"
