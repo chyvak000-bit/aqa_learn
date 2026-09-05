@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from main.api.classes.api_manager import ApiManager
+from main.api.db.crud.account_crud import AccountCrudDb
 from main.api.db.crud.transaction_crud import TransactionCrudDb
 from main.api.models.deposit_request import DepositRequest
 from main.api.models.login_user_request import LoginUserRequest
@@ -41,3 +42,41 @@ class TestTransfer:
         assert transaction_from_db.to_account_id == create_account_response_2.id, "Неверный ID счёта получателя в БД"
         assert transaction_from_db.amount == transfer_amount, "Неверная сумма перевода в БД"
         assert transaction_from_db.transaction_type == "transfer", "Неверный тип транзакции в БД"
+
+    # Негативный тест
+    def test_transfer_money_invalid_amount(
+            self, api_manager: ApiManager, login_user_request: LoginUserRequest, db_session: Session
+    ):
+        create_account_response_1 = api_manager.user_steps.create_account(login_user_request)
+
+        deposit_amount = 5000
+
+        deposit_request = DepositRequest(accountId=create_account_response_1.id, amount=deposit_amount)
+
+        api_manager.user_steps.deposit_money(login_user_request, deposit_request)
+
+        account_from_db_before = AccountCrudDb.get_account_by_id(db_session, create_account_response_1.id)
+
+        transfer_from_db_before = TransactionCrudDb.get_transfers_by_account_id(
+            db_session, create_account_response_1.id
+        )
+
+        create_account_response_2 = api_manager.user_steps.create_account(login_user_request)
+
+        transfer_amount = 10000
+        transfer_request = TransferRequest(
+            fromAccountId=create_account_response_1.id, toAccountId=create_account_response_2.id, amount=transfer_amount
+        )
+
+        api_manager.user_steps.transfer_money_invalid(login_user_request, transfer_request)
+
+        account_from_db_after = AccountCrudDb.get_account_by_id(db_session, create_account_response_1.id)
+        transfer_from_db_after = TransactionCrudDb.get_transfers_by_account_id(db_session, create_account_response_1.id)
+
+        assert account_from_db_before is not None, "Счёт отсутствует в БД"
+        assert account_from_db_after is not None, "Счёт отсутствует в БД"
+
+        assert account_from_db_before.balance == account_from_db_after.balance, \
+            "Баланс счёта изменился после неуспешного перевода"
+        assert len(transfer_from_db_before) == len(transfer_from_db_after), \
+            "В БД был создан перевод при недостатке средств"

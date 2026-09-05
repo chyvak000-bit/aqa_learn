@@ -26,6 +26,7 @@ class TestCreateUser:
         assert user_from_db.username == create_user_request.username, "Неверное имя пользователя в БД"
         assert user_from_db.role == create_user_request.role, "Неверная роль пользователя в БД"
 
+    # Негативный тест
     @pytest.mark.parametrize(
         "username,password",
         [

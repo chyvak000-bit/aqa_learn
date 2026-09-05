@@ -11,6 +11,7 @@ def create_user_request(api_manager):
     api_manager.admin_steps.create_user(user_request)
     return user_request
 
+
 @pytest.fixture
 def create_credit_user_request(api_manager):
     user_request = RandomModelGenerator.generate(CreateCreditUserRequest)
@@ -24,6 +25,7 @@ def login_user_request(create_user_request):
         username=create_user_request.username,
         password=create_user_request.password
     )
+
 
 @pytest.fixture
 def login_credit_user_request(create_credit_user_request):

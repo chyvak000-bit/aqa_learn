@@ -36,3 +36,29 @@ class TestCreditRequest:
         assert credit_from_db.term_months == credit_term, "Неверный срок кредита в БД"
         assert credit_from_db.account_id == create_account_response.id, "Неверный ID счёта в БД"
         assert credit_from_db.balance == credit_amount, "Неверный баланс кредита в БД"
+
+        # При оформлении кредита в БД в поле balance сохраняется отрицательное значение (-12000),
+        # хотя API возвращает 12000.
+        # Ожидаемо: balance = 12000 в БД, согласно Swagger.
+
+    # Негативный тест
+    def test_multi_credit_request(
+            self, api_manager: ApiManager, login_credit_user_request: LoginUserRequest, db_session: Session
+    ):
+        create_account_response = api_manager.credit_steps.create_account(login_credit_user_request)
+
+        credit_amount = 12000
+        credit_term = 12
+
+        credit_request = CreditRequest(
+            accountId=create_account_response.id, amount=credit_amount, termMonths=credit_term
+        )
+
+        api_manager.credit_steps.request_credit(login_credit_user_request, credit_request)
+        api_manager.credit_steps.request_multi_credit(login_credit_user_request, credit_request)
+
+        # Ожидаемый результат: HTTP 403 Forbidden при попытке пользователя оформить второй активный кредит.
+        # Фактический результат: HTTP 404 Not Found.
+        # Тело ответа: {"error": "Only one active credit allowed per user"}.
+        # Причина: согласно Swagger, ошибка «Only one active credit allowed per user» относится к ответу 403,
+        # тогда как 404 предназначен для случая, когда указанный ID счёта не найден.

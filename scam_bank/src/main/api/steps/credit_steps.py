@@ -1,4 +1,5 @@
 from main.api.foundation.endpoint import Endpoint
+from main.api.foundation.requesters.crud_requester import CrudRequester
 from main.api.foundation.requesters.validate_crud_requester import ValidateCrudRequester
 from main.api.models.credit_repay_request import CreditRepayRequest
 from main.api.models.credit_request import CreditRequest
@@ -23,3 +24,18 @@ class CreditSteps(UserSteps):
             ResponseSpecs.request_ok()
         ).post(credit_repay_request)
         return credit_repay_response
+
+    # Для негативных тестов
+    def request_multi_credit(self, login_user_request: LoginUserRequest, credit_request: CreditRequest):
+        CrudRequester(
+            self.get_auth_headers(login_user_request),
+            Endpoint.CREDIT_REQUEST,
+            ResponseSpecs.request_forbidden()
+        ).post(credit_request)
+
+    def repay_credit_not_found(self, login_user_request: LoginUserRequest, credit_repay_request: CreditRepayRequest):
+        CrudRequester(
+            self.get_auth_headers(login_user_request),
+            Endpoint.CREDIT_REPAY,
+            ResponseSpecs.request_not_found()
+        ).post(credit_repay_request)

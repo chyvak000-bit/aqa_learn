@@ -2,6 +2,7 @@ from main.api.foundation.endpoint import Endpoint
 from main.api.foundation.requesters.crud_requester import CrudRequester
 from main.api.foundation.requesters.validate_crud_requester import ValidateCrudRequester
 from main.api.models.create_user_request import CreateUserRequest
+from main.api.models.create_user_response import CreateUserResponse
 from main.api.models.login_user_request import LoginUserRequest
 from main.api.specs.response_specs import ResponseSpecs
 from main.api.steps.base_steps import BaseSteps
@@ -33,6 +34,7 @@ class AdminSteps(BaseSteps):
             ResponseSpecs.request_ok()
         ).delete(user_id)
 
+    # Для негативных тестов
     def create_invalid_user(self, create_user_request: CreateUserRequest):
         CrudRequester(
             self.get_admin_auth_headers(),

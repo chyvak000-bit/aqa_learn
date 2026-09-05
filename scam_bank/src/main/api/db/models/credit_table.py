@@ -15,5 +15,5 @@ class Credit(Base):
     def __repr__(self):
         return (
             f"<Credit(id={self.id}, account_id={self.account_id}, amount={self.amount}, "
-            f"term_month={self.term_month}, balance={self.balance}, created_at={self.created_at})>"
+            f"term_months={self.term_months}, balance={self.balance}, created_at={self.created_at})>"
         )

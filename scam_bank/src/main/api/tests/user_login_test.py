@@ -21,3 +21,36 @@ class TestUserLogin:
         # Проверяем ответ API
         assert login_user_request.username == login_user_response.user.username
         assert login_user_response.user.role == "ROLE_USER"
+
+    # Негативные тесты
+    @pytest.mark.parametrize(
+        "username,password",
+        [
+            ("admin", ""),
+            ("", "123456"),
+        ],
+        ids=[
+            "Отсутствует  пароль",
+            "Отсутствует имя пользователя",
+        ]
+    )
+    def test_login_user_invalid(self, username: str, password: str, api_manager: ApiManager):
+        login_user_request = LoginUserRequest(username=username, password=password)
+
+        api_manager.admin_steps.login_invalid_user(login_user_request)
+
+    @pytest.mark.parametrize(
+        "username,password",
+        [
+            ("admin", "111111"),
+            ("non_admin", "123456"),
+        ],
+        ids=[
+            "Неверный пароль",
+            "Неверный логин",
+        ]
+    )
+    def test_login_user_invalid_credentials(self, username: str, password: str, api_manager: ApiManager):
+        login_user_request = LoginUserRequest(username=username, password=password)
+
+        api_manager.admin_steps.login_invalid_credentials(login_user_request)

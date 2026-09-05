@@ -1,15 +1,16 @@
 import allure
 
-from typing import Optional
+from typing import Optional, Callable, Any
 
 from main.api.configs.config import Config
+from main.api.foundation.endpoint import Endpoint
 from main.api.foundation.http_requester import HttpRequester
 from main.api.foundation.requesters.crud_requester import CrudRequester
 from main.api.models.base_model import BaseModel
 
 
 class ValidateCrudRequester(HttpRequester):
-    def __init__(self, request_spec, endpoint, response_spec):
+    def __init__(self, request_spec: dict, endpoint: Endpoint, response_spec: Callable[..., Any]):
         super().__init__(request_spec, endpoint, response_spec)
         self.crud_requester = CrudRequester(
             request_spec=request_spec,

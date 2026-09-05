@@ -6,9 +6,10 @@ from main.api.db.models.transaction_table import Transaction
 
 class TransactionCrudDb:
     @staticmethod
-    def get_transaction_by_id(db: Session, transaction_id: int) -> Transaction | None:
+    def get_deposit(db: Session, account_id: int) -> Transaction | None:
         statement = select(Transaction).where(
-            Transaction.id == transaction_id
+            Transaction.to_account_id == account_id,
+            Transaction.transaction_type == "deposit"
         )
         return db.scalar(statement)
 
@@ -28,3 +29,20 @@ class TransactionCrudDb:
             Transaction.transaction_type == "credit_repayment"
         )
         return db.scalar(statement)
+
+    @staticmethod
+    def get_deposits_by_account_id(db: Session, account_id: int) -> list[Transaction]:
+        statement = select(Transaction).where(
+            Transaction.to_account_id == account_id,
+            Transaction.transaction_type == "deposit"
+        )
+        return list(db.scalars(statement).all())
+
+    @staticmethod
+    def get_transfers_by_account_id(db: Session, account_id: int) -> list[Transaction]:
+        statement = select(Transaction).where(
+            (Transaction.from_account_id == account_id) |
+            (Transaction.to_account_id == account_id),
+            Transaction.transaction_type == "transfer"
+        )
+        return list(db.scalars(statement).all())
